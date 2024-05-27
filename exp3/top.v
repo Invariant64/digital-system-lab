@@ -7,7 +7,8 @@ module top (
     input add,
 
     output [7:0] decodeout,
-    output [7:0] ds
+    output [7:0] ds,
+    output buzzer
 );
 
     wire fd_all_switch;
@@ -50,6 +51,9 @@ module top (
     );
 
     wire [4*8-1:0] clock_out;
+    wire [4*8-1:0] alarm_set_out;
+
+    wire alarm_ringing;
 
     clock clock_inst (
         .clk_1khz(clk_1khz),
@@ -57,6 +61,8 @@ module top (
         .set_en(mode == 2'b01),
         .switch(fd_switch),
         .add(fd_add),
+        .alarm_set(alarm_set_out),
+        .alarm_ringing(alarm_ringing),
         .out(clock_out)
     );
 
@@ -70,7 +76,7 @@ module top (
         .out(timer_out)
     );
 
-    wire [4*8-1:0] alarm_set_out;
+    wire [4*8-1:0] alarm_display_out;
 
     alarm_set alarm_set_inst (
         .clk_1khz(clk_1khz),
@@ -78,13 +84,13 @@ module top (
         .en(mode == 2'b11),
         .switch(fd_switch),
         .add(fd_add),
-        .display_out(alarm_set_out),
-        // .alarm_set_out(alarm_set_out)
+        .display_out(alarm_display_out),
+        .alarm_set_out(alarm_set_out)
     );
 
     wire [4*8*4-1:0] display_in;
 
-    assign display_in = { alarm_set_out, timer_out, clock_out, clock_out };
+    assign display_in = { alarm_display_out, timer_out, clock_out, clock_out };
 
     display display_inst (
         .clk_1khz(clk_1khz),
@@ -93,6 +99,13 @@ module top (
         .in(display_in),
         .decodeout(decodeout),
         .ds(ds)
+    );
+
+    buzzer buzzer_inst (
+        .en(alarm_ringing),
+        .clk_50mhz(clk_50mhz),
+        .N(17'd50000),
+        .out_buzzer(buzzer)
     );
 
 endmodule

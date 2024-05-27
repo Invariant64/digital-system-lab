@@ -46,7 +46,7 @@ module clock (
             rsec <= 0;
             rmin <= 0;
             rhr <= 0;
-        end else if (~set_en) begin
+        end else if (~set_en || state == S_CLOCK) begin
             tick <= tick + 1;
             if (tick == 1000) begin
                 tick <= 0;
@@ -63,7 +63,7 @@ module clock (
                     end
                 end
             end
-        end else if (set_en) begin
+        end else if (set_en && state != S_CLOCK) begin
             tick <= 0;
             case (state)
                 S_SET_MIN: begin
@@ -140,7 +140,7 @@ module clock (
             alarm_ringing <= 0;
         end else if (out == alarm_set) begin
             alarm_ringing <= 1;
-        end else if (switch) begin
+        end else if (~switch) begin
             alarm_ringing <= 0;
         end
     end
