@@ -88,16 +88,10 @@ module clock (
         end else if (set_en) begin
             case (state)
                 S_SET_MIN: begin
-                    rmin_set <= rmin + 1;
-                    if (rmin_set == 60) begin
-                        rmin_set <= 0;
-                    end
+                    rmin_set <= rmin_set == 59 ? 0 : rmin + 1;
                 end
                 S_SET_HR: begin
-                    rhr_set <= rhr + 1;
-                    if (rhr_set == 24) begin
-                        rhr_set <= 0;
-                    end
+                    rhr_set <= rhr_set == 23 ? 0 : rhr + 1;
                 end
             endcase
         end
@@ -122,7 +116,7 @@ module clock (
             cnt <= 0;
         end else if (set_en) begin
             cnt <= cnt + 1;
-            if (cnt >= 300) begin
+            if (cnt >= 500) begin
                 cnt <= 0;
                 case (state)
                     S_CLOCK: begin
@@ -139,7 +133,7 @@ module clock (
         end
     end
 
-    assign out = set_en ? time_out & mask : time_out;
+    assign out = set_en ? time_out | mask : time_out;
 
     always @(posedge clk_1khz) begin
         if (rst) begin
