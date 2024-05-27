@@ -1,5 +1,6 @@
 module mode_ctl (
-    input switch,
+    input all_switch,
+    input rst,
     input alarm_ringing,
     output reg [1:0] mode
 );
@@ -13,22 +14,26 @@ module mode_ctl (
         mode <= M_DISPLAY;
     end
 
-    always @(posedge switch) begin
-        case (mode)
-            M_DISPLAY: begin
-                if (!alarm_ringing) begin
-                    mode <= M_SET;
+    always @(posedge all_switch) begin
+        if (rst) begin
+            mode <= M_DISPLAY;
+        end else begin
+            case (mode)
+                M_DISPLAY: begin
+                    if (!alarm_ringing) begin
+                        mode <= M_SET;
+                    end
                 end
-            end
-            M_SET: begin
-                mode <= M_TIMER;
-            end
-            M_TIMER: begin
-                mode <= M_ALARM_SET;
-            end
-            M_ALARM_SET: begin
-                mode <= M_DISPLAY;
-            end
-        endcase
+                M_SET: begin
+                    mode <= M_TIMER;
+                end
+                M_TIMER: begin
+                    mode <= M_ALARM_SET;
+                end
+                M_ALARM_SET: begin
+                    mode <= M_DISPLAY;
+                end
+            endcase
+        end
     end
 endmodule

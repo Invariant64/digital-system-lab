@@ -27,7 +27,6 @@ module display (
 
     wire [3:0] display_out[7:0];
 
-
     generate
         for (i = 0; i < 8; i = i + 1) begin: u2
             assign display_out[i] = (mode == 2'b00) ? display_in[i] :
